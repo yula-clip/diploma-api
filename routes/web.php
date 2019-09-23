@@ -15,19 +15,8 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->get('/test', function () {
-    return \App\Models\User::get();
+$router->get('/users', function () {
+    return \App\User::get();
 });
 
-$router->group([
-
-    'middleware' => 'api',
-    'prefix' => 'auth'
-
-], function ($router) {
-
-    $router->post('login', 'AuthController@login');
-    $router->post('logout', 'AuthController@logout');
-    $router->post('refresh', 'AuthController@refresh');
-    $router->post('me', 'AuthController@me');
-});
+$router->post('/auth/login', 'AuthController@postLogin');
