@@ -15,8 +15,16 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->get('/users', function () {
-    return \App\User::get();
+// $router->get('/users', function () {
+//     return \App\User::get();
+// });
+
+$router->group(['prefix' => 'users'], function () use ($router) {
+    $router->get('/', 'UserController@all');
+    $router->get('/{id}', 'UserController@get');
+    $router->post('/', 'UserController@save');
+    $router->put('/{id}', 'UserController@save');
+    $router->delete('/{id}', 'UserController@delete');
 });
 
 $router->post('/auth/login', 'AuthController@postLogin');
