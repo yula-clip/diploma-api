@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
+use App\Models\River;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class UserController extends Controller
+class RiverController extends Controller
 {
     public function __construct()
     {
@@ -16,7 +16,7 @@ class UserController extends Controller
 
     public function all(Request $request, Response $response)
     {
-        $items = User::select();
+        $items = River::select();
 
         if ($request->has('date')) {
             $items->whereDate('created_at', $request->get('date'));
@@ -28,7 +28,7 @@ class UserController extends Controller
 
     public function get(Request $request, Response $response, $id)
     {
-        $item = User::find($id);
+        $item = River::find($id);
         if (!$item) {
             $response->setStatusCode(404);
         }
@@ -38,7 +38,7 @@ class UserController extends Controller
     public function save(Request $request, Response $response, $id = null)
     {
         if ($id) {
-            $item = User::find($id);
+            $item = River::find($id);
             if (!$item) {
                 $response->setStatusCode(404);
             } else {
@@ -46,14 +46,14 @@ class UserController extends Controller
                 $response->setContent($item);
             }
         } else {
-            $response->setContent( User::create($request->all()) );
+            $response->setContent( River::create($request->all()) );
         }
         return $response;
     }
 
     public function delete(Request $request, Response $response, $id)
     {
-        $item = User::find($id);
+        $item = River::find($id);
         if (!$item) {
             $response->setStatusCode(404);
         } else {

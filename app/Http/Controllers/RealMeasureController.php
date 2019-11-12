@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
+use App\Models\RealMeasure;
+use App\Models\MeasuringPoint;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class UserController extends Controller
+class RealMeasureController extends Controller
 {
     public function __construct()
     {
@@ -16,7 +17,7 @@ class UserController extends Controller
 
     public function all(Request $request, Response $response)
     {
-        $items = User::select();
+        $items = RealMeasure::select();
 
         if ($request->has('date')) {
             $items->whereDate('created_at', $request->get('date'));
@@ -28,7 +29,7 @@ class UserController extends Controller
 
     public function get(Request $request, Response $response, $id)
     {
-        $item = User::find($id);
+        $item = RealMeasure::find($id);
         if (!$item) {
             $response->setStatusCode(404);
         }
@@ -37,23 +38,26 @@ class UserController extends Controller
 
     public function save(Request $request, Response $response, $id = null)
     {
-        if ($id) {
-            $item = User::find($id);
-            if (!$item) {
-                $response->setStatusCode(404);
-            } else {
-                $item->update($request->all());
-                $response->setContent($item);
+        if ($request->get('substance_id')) {
+            $substances = RealMeasure::where('substance_id', $request->get('substance_id'));
+            if ($id) {
+                $substances = $substances->where('id', '!=', $id);
             }
-        } else {
-            $response->setContent( User::create($request->all()) );
         }
-        return $response;
+
+        $model = ($id) ? RealMeasure::find($id) : new RealMeasure;
+
+        $model->date = date("Y-m-d H:i:s", strtotime($request->get('date')));
+        $model->fill($request->except('measuring_points'));
+        $model->measuring_points = $request->only('measuring_points')['measuring_points'];
+        $model->save();
+
+        return $response->setContent($model);
     }
 
     public function delete(Request $request, Response $response, $id)
     {
-        $item = User::find($id);
+        $item = RealMeasure::find($id);
         if (!$item) {
             $response->setStatusCode(404);
         } else {
