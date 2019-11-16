@@ -16,4 +16,9 @@ class RiverSection extends Model
     {
         return $this->belongsTo(River::class, 'river_id');;
     }
+
+    public function points()
+    {
+        return $this->hasMany(MeasuringPoint::class, 'river_section_id');
+    }
 }

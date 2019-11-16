@@ -11,4 +11,9 @@ class River extends Model
     protected $fillable = [
         'name'
     ];
+
+    public function sections()
+    {
+        return $this->hasMany(RiverSection::class, 'river_id');
+    }
 }
