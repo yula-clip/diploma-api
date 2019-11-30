@@ -37,9 +37,7 @@ class MeasureController extends Controller
             $query->where('river_section_id', $id);
         });
 
-        if ($request->has('date')) {
-            $items->whereDate('created_at', $request->get('date'));
-        }
+        $items = $items->whereRaw('date = (select max(`date`) from measures as m1 where m1.measPointId = measures.measPointId and  m1.substId = measures.substId)');
 
         $items = $items->get();
         return $response->setContent($items);
@@ -53,10 +51,7 @@ class MeasureController extends Controller
             $query->where('river_section_id', $id);
         });
 
-        // $M = $request->get('m');
-        // $l = $request->get('l');
-        // $dh = $request->get('dh');
-
+        $measures = $measures->whereRaw('date = (select max(`date`) from measures as m1 where m1.measPointId = measures.measPointId and  m1.substId = measures.substId)');
 
         $measures = $measures->get();
         $measures = $measures->groupBy('substId');
@@ -68,8 +63,10 @@ class MeasureController extends Controller
     {
         $sections = RiverSection::with('river')->whereHas('points', function (Builder $query) {
             $query->whereHas('measures', function (Builder $query) {
+                $query = $query->whereRaw('date = (select max(`date`) from measures as m1 where m1.measPointId = measures.measPointId and  m1.substId = measures.substId)');
+
                 $query->whereHas('substance', function (Builder $query) {
-                    $query->where('validValue', '>', 'measures.value');
+                    $query->where('validValue', '<', 'measures.value');
                 });
             });
         });
@@ -93,8 +90,9 @@ class MeasureController extends Controller
             if (!$item) {
                 $response->setStatusCode(404);
             } else {
-                $item->date = date('Y-m-d H:i:s', strtotime($request->get('date')));
-                $item->update($request->all());
+                $measure = $request->all();
+                $measure['date'] = date('Y-m-d H:i:s', strtotime($measure['date']));
+                $item->update($measure);
                 $response->setContent($item);
             }
         } else {
@@ -115,5 +113,12 @@ class MeasureController extends Controller
             $item->delete();
         }
         return $response;
+    }
+
+    public function importMeasures(Request $request, Response $response)
+    {
+        $measures = Measure::select();
+        $measures = $measures->get();
+        return $response->setContent($measures);
     }
 }

@@ -50,6 +50,7 @@ $router->group(['prefix' => 'measuringPoints'], function () use ($router) {
 $router->group(['prefix' => 'realMeasures'], function () use ($router) {
     $router->get('/', 'MeasureController@all');
     $router->get('/polluted', 'MeasureController@getPollutedSection');
+    $router->get('/import', 'MeasureController@importMeasures');
     $router->get('/{id}', 'MeasureController@get');
     $router->get('/{id}/sectionId', 'MeasureController@getMeasures');
     $router->get('/{id}/results', 'MeasureController@getResults');
