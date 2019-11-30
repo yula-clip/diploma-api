@@ -16,7 +16,7 @@ class RiverSectionController extends Controller
 
     public function all(Request $request, Response $response)
     {
-        $items = RiverSection::select();
+        $items = RiverSection::select()->with('river');
 
         if ($request->has('date')) {
             $items->whereDate('created_at', $request->get('date'));

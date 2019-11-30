@@ -6,6 +6,7 @@ use App\Models\Measure;
 use App\Models\MeasuringPoint;
 use Illuminate\Database\Eloquent\Builder;
 use App\Http\Controllers\Controller;
+use App\Models\RiverSection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -52,25 +53,28 @@ class MeasureController extends Controller
             $query->where('river_section_id', $id);
         });
 
-        $M = $request->get('m');
-        $l = $request->get('l');
-        $dh = $request->get('dh');
+        // $M = $request->get('m');
+        // $l = $request->get('l');
+        // $dh = $request->get('dh');
 
 
         $measures = $measures->get();
+        $measures = $measures->groupBy('substId');
+
         return $response->setContent($measures);
     }
 
     public function getPollutedSection(Request $request, Response $response)
     {
-        $measures = Measure::select()->with('substance', 'measuring_point', 'measuring_point.river_section');
-
-        $measures = $measures->whereHas('substance', function (Builder $query) {
-            $query->where('validValue', '>', 0);
+        $sections = RiverSection::with('river')->whereHas('points', function (Builder $query) {
+            $query->whereHas('measures', function (Builder $query) {
+                $query->whereHas('substance', function (Builder $query) {
+                    $query->where('validValue', '>', 'measures.value');
+                });
+            });
         });
-
-        $measures = $measures->get();
-        return $response->setContent($measures);
+        $sections = $sections->get();
+        return $response->setContent($sections);
     }
 
     public function get(Request $request, Response $response, $id)
@@ -94,7 +98,10 @@ class MeasureController extends Controller
                 $response->setContent($item);
             }
         } else {
-            $response->setContent(Measure::create($request->all()));
+            $measure = $request->all();
+            $measure['date'] = date('Y-m-d H:i:s', strtotime($measure['date']));
+
+            $response->setContent(Measure::create($measure));
         }
         return $response;
     }

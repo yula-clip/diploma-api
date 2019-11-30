@@ -12,7 +12,7 @@ class Measure extends Model
      * @var array
      */
     protected $fillable = [
-        'value', 'substId', 'measPointId'
+        'value', 'substId', 'measPointId', 'date'
     ];
 
     protected $with = [
