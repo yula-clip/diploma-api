@@ -42,11 +42,19 @@ class UserController extends Controller
             if (!$item) {
                 $response->setStatusCode(404);
             } else {
-                $item->update($request->all());
+                $user = $request->all();
+                if ($user['password'] != null) {
+                    $user['password'] = app('hash')->make($user['password']);
+                } else {
+                    $user['password'] = $item['password'];
+                }
+                $item->update($user);
                 $response->setContent($item);
             }
         } else {
-            $response->setContent( User::create($request->all()) );
+            $user = $request->all();
+            $user['password'] = app('hash')->make('admin');
+            $response->setContent(User::create($user));
         }
         return $response;
     }
