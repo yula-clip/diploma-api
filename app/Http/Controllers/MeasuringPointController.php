@@ -16,7 +16,7 @@ class MeasuringPointController extends Controller
 
     public function all(Request $request, Response $response)
     {
-        $items = MeasuringPoint::select()->with("river_section","river_section.river");
+        $items = MeasuringPoint::select()->with("river_section", "river_section.river");
 
         if ($request->has('date')) {
             $items->whereDate('created_at', $request->get('date'));
@@ -48,7 +48,7 @@ class MeasuringPointController extends Controller
                 $response->setContent($item);
             }
         } else {
-            $response->setContent( MeasuringPoint::create($request->all()) );
+            $response->setContent(MeasuringPoint::create($request->all()));
         }
         return $response;
     }
@@ -62,5 +62,18 @@ class MeasuringPointController extends Controller
             $item->delete();
         }
         return $response;
+    }
+
+    public function importPoints(Request $request, Response $response)
+    {
+        $request->file('filepoints')[0]->move('/', 'import.csv');
+        if (($handle = fopen('/import.csv', 'r')) !== FALSE) {
+            while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
+                $point = ['name' => $data[0], 'x' => $data[1], 'y' => $data[2], 'river_section_id' => $data[3]];
+                MeasuringPoint::create($point);
+            }
+        }
+
+        return $response->setContent(1);
     }
 }

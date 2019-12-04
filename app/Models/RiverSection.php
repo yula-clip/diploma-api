@@ -1,6 +1,9 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
+
 class RiverSection extends Model
 {
     /**
@@ -10,6 +13,10 @@ class RiverSection extends Model
      */
     protected $fillable = [
         'name', 'diffuse', 'river_id', 'diffuse', 'velosity'
+    ];
+
+    protected $with = [
+        'river'
     ];
 
     public function river()

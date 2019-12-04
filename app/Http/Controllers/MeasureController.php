@@ -66,7 +66,7 @@ class MeasureController extends Controller
                 $query = $query->whereRaw('date = (select max(`date`) from measures as m1 where m1.measPointId = measures.measPointId and  m1.substId = measures.substId)');
 
                 $query->whereHas('substance', function (Builder $query) {
-                    $query->where('validValue', '>', 'measures.value');
+                    $query->whereRaw('validValue < measures.value');
                 });
             });
         });
@@ -117,7 +117,7 @@ class MeasureController extends Controller
 
     public function importMeasures(Request $request, Response $response)
     {
-        $request->file('kaka')->move('/', 'import.csv');
+        $request->file('filemeas')[0]->move('/', 'import.csv');
         if (($handle = fopen('/import.csv', 'r')) !== FALSE) {
             while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
                 $measure = ['value' => $data[0], 'substId' => $data[1], 'date' => $data[2], 'measPointId' => $data[3]];
@@ -125,6 +125,6 @@ class MeasureController extends Controller
             }
         }
 
-        return $response->setContent('ok');
+        return $response->setContent(1);
     }
 }

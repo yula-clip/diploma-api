@@ -41,6 +41,7 @@ $router->group(['prefix' => 'riverSections'], function () use ($router) {
 
 $router->group(['prefix' => 'measuringPoints'], function () use ($router) {
     $router->get('/', 'MeasuringPointController@all');
+    $router->post('/import', 'MeasuringPointController@importPoints');
     $router->get('/{id}', 'MeasuringPointController@get');
     $router->post('/', 'MeasuringPointController@save');
     $router->put('/{id}', 'MeasuringPointController@save');
